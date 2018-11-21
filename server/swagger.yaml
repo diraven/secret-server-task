@@ -50,7 +50,7 @@ paths:
             $ref: "#/definitions/Secret"
         405:
           description: "Invalid input"
-          
+
   /secret/{hash}:
     get:
       tags:
