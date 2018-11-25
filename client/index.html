@@ -1,117 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<!-- Required meta tags -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-	<!-- Bootstrap CSS -->
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
-		  integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-
 	<title>Secret Server</title>
+
+	<link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.css">
+	<style>
+		.container {
+			padding-top: 20px;
+		}
+	</style>
 </head>
 
 <body>
+
 <div class="container">
 	<div class="row">
-		<div class="col-md form-group" id="get">
-			<div class="alert alert-danger" v-if="error">
-			{{ error }}
-			</div>
+		<!-- GETTER -->
+		<div class="col-md" id="get">
+			<div class="card">
+				<form>
+					<div class="card-header">
+						Secret Getter
+					</div>
+					<div class="card-body">
 
-			<div class="alert alert-info" v-if="info">
-				<ul v-for="data, key in info">
-					<li><strong>{{ key }}</strong>: {{ data }}</li>
-				</ul>
-			</div>
+						<api-error :response="error_response"></api-error>
+						<api-secret :secret="secret"></api-secret>
 
-			<label for="hash">Hash: <input id="hash" v-model="hash"></label>
-			<button v-on:click="getSecret">Get</button>
+						<div class="form-group">
+							<label for="hash">Hash</label>
+							<input type="text" class="form-control" id="hash" aria-describedby="hashHelp"
+								   placeholder="Enter Secret Hash" v-model="hash" required>
+							<small id="hashHelp" class="form-text text-muted">Hash string of your secret.</small>
+						</div>
+
+					</div>
+					<div class="card-footer">
+						<button class="btn btn-primary" @click.prevent="getSecret">Get</button>
+					</div>
+				</form>
+			</div>
 		</div>
+
+		<!-- SETTER -->
 		<div class="col-md" id="set">
-			<div class="alert alert-danger" v-if="error">
-			{{ error }}
-			</div>
+			<form>
+				<div class="card">
+					<div class="card-header">
+						Secret Setter
+					</div>
 
-			<div class="alert alert-success" v-if="info">
-				<ul v-for="data, key in info">
-					<li><strong>{{ key }}</strong>: {{ data }}</li>
-				</ul>
-			</div>
+					<div class="card-body">
+						<api-error :response="error_response"></api-error>
+						<api-secret :secret="secret"></api-secret>
 
-			<label for="secret">secret: <input id="secret" v-model="secret"></label>
-			<label for="expireAfterViews">expireAfterViews: <input id="expireAfterViews"
-																   v-model="expireAfterViews"></label>
-			<label for="expireAfter">expireAfter: <input id="expireAfter" v-model="expireAfter"></label>
-			<button v-on:click="putSecret">Put</button>
+						<div class="form-group">
+							<label for="data">Secret</label>
+							<input type="text" class="form-control" id="data" aria-describedby="dataHelp"
+								   placeholder="Enter your Secret Data" v-model="data" required>
+							<small id="dataHelp" class="form-text text-muted">Hash string of your secret.</small>
+						</div>
+
+						<div class="form-group">
+							<label for="expireAfterViews">Expire After Views</label>
+							<input class="form-control" id="expireAfterViews"
+								   aria-describedby="expireAfterViewsHelp"
+								   placeholder="Expire After Views" v-model="expireAfterViews" required>
+							<small id="expireAfterViewsHelp" class="form-text text-muted">Secret can be viewed this many
+								times.
+							</small>
+						</div>
+
+						<div class="form-group">
+							<label for="expireAfter">Expire After Minutes</label>
+							<input class="form-control" id="expireAfterViews"
+								   aria-describedby="expireAfterHelp"
+								   placeholder="Expire After Minutes" v-model="expireAfter" required>
+							<small id="expireAfterHelp" class="form-text text-muted">Secret will be available for this
+								many minutes.
+							</small>
+						</div>
+
+					</div>
+					<div class="card-footer">
+						<button class="btn btn-primary" @click.prevent="putSecret">Put</button>
+					</div>
+				</div>
+			</form>
 		</div>
 	</div>
 </div>
 
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-		integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-		crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
-		integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
-		crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
-		integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
-		crossorigin="anonymous"></script>
-<script type="text/javascript">
-	new Vue({
-		el: '#get',
-		data: {
-			error: null,
-			info: null,
-			hash: null,
-		},
-		methods: {
-			getSecret: function () {
-				console.log(this.hash);
-				axios
-						.get('/secret/server/v1/secret/' + this.hash)
-						.then(response => {
-							this.info = response.data;
-							this.error = null;
-						})
-						.catch(error => {
-							this.info = null;
-							this.error = error.response.statusText;
-						})
-			}
-		}
-	});
-	new Vue({
-		el: '#set',
-		data: {
-			error: null,
-			info: null,
-			secret: null,
-			expireAfterViews: null,
-			expireAfter: null,
-		},
-		methods: {
-			putSecret: function () {
-				const params = new URLSearchParams();
-				params.append('secret', this.secret);
-				params.append('expireAfterViews', this.expireAfterViews);
-				params.append('expireAfter', this.expireAfter);
-				axios
-						.post('/secret/server/v1/secret/', params)
-						.then(response => {
-							this.info = response.data;
-							this.error = null;
-						})
-						.catch(error => {
-							this.info = null;
-							this.error = error.response.data.message;
-						})
-			}
-		}
-	});
-</script>
+<script src="./node_modules/axios/dist/axios.js"></script>
+<script src="./node_modules/vue/dist/vue.js"></script>
+<script src="./node_modules/jquery/dist/jquery.js"></script>
+<script src="./node_modules/bootstrap/dist/js/bootstrap.js"></script>
+
+<script type="text/javascript" src="./js/components/error.js"></script>
+<script type="text/javascript" src="./js/components/secret.js"></script>
+
+<script type="text/javascript" src="./js/getter.js"></script>
+<script type="text/javascript" src="./js/setter.js"></script>
+
 </body>
 </html>
