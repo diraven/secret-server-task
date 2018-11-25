@@ -142,7 +142,8 @@ func init() {
         },
         "secretText": {
           "description": "The secret itself",
-          "type": "string"
+          "type": "string",
+          "maxLength": 1024
         }
       },
       "xml": {
@@ -289,7 +290,8 @@ func init() {
         },
         "secretText": {
           "description": "The secret itself",
-          "type": "string"
+          "type": "string",
+          "maxLength": 1024
         }
       },
       "xml": {

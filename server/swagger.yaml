@@ -84,6 +84,7 @@ definitions:
       secretText:
         type: "string"
         description: "The secret itself"
+        maxLength: 1024
       createdAt:
         type: "string"
         format: "date-time"

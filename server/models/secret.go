@@ -31,6 +31,7 @@ type Secret struct {
 	RemainingViews int32 `json:"remainingViews,omitempty"`
 
 	// The secret itself
+	// Max Length: 1024
 	SecretText string `json:"secretText,omitempty"`
 }
 
@@ -43,6 +44,10 @@ func (m *Secret) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateExpiresAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecretText(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -72,6 +77,19 @@ func (m *Secret) validateExpiresAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("expiresAt", "body", "date-time", m.ExpiresAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Secret) validateSecretText(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SecretText) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("secretText", "body", string(m.SecretText), 1024); err != nil {
 		return err
 	}
 

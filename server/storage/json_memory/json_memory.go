@@ -45,6 +45,13 @@ func (m *jsonInMemory) Put(
 	expireAfterViews int32, // times
 	expireAfter int32, // minutes
 ) (secret *models.Secret, err error) {
+	// TODO: Design and implement proper limitation mechanism depending on extended requirements if any.
+	// A quick dirty hack to make sure the server won't use too much memory - limit maximum amount of secrets to 1000.
+	if len(m.Secrets) >= 1000 {
+		err = errors.New("too many secrets")
+		return
+	}
+
 	// Make UUID to serve as a hash. It's not cryptographically secure, one might pick some other library/function
 	// to generate UUIDs instead if crypto security is necessary.
 
