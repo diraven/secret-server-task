@@ -18,7 +18,7 @@ new Vue({
 
 			// Perform the request itself.
 			axios
-				.post('/secret/server/v1/secret/', params)
+				.post('/server/v1/secret/', params)
 				.then(response => {
 					this.secret = response.data;
 					this.error_response = null;

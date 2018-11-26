@@ -9,7 +9,7 @@ new Vue({
 		getSecret: function () {
 			// Perform the get request.
 			axios
-				.get('/secret/server/v1/secret/' + this.hash)
+				.get('/server/v1/secret/' + this.hash)
 				.then(response => {
 					this.secret = response.data;
 					this.error_response = null;
